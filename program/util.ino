@@ -33,17 +33,18 @@ void logError(const String text, bool withSeparator) {
 // Ecrit l'en-tête du tableau dans le fichier spécifié
 bool writeFileHeader(String filePath) {
   return writeFile(filePath, "Le temps est depuis l'allumage de la carte;\n"
-                             "Temps (s);Altitude approximative (m);Température gyroscope (°C);Température baromètre (°C);Pression (hPa);Accélération (m/s^2);...;...;Rotation (rad/s);...;...;\n"
-                             "...;...;...;...;...;X;Y;Z;X;Y;Z;\n");
+                             "Temps (s);Altitude approximative (m);Température gyroscope (°C);Température intérieur (°C);Température extérieur (°C);"
+                                "Pression intérieur (hPa);Pression extérieur (hPa);Accélération (m/s^2);...;...;Rotation (rad/s);...;...;\n"
+                             "...;...;...;...;...;...;...;X;Y;Z;X;Y;Z;\n");
 }
 
 // Récupère toutes les valeurs des capteurs et les écrits dans l'ordre de l'en-tête
 void getAndWriteSensorsEvents(String filePath, int maxOperationTime) {
-  unsigned long lastTime = millis();
+  uint32_t lastTime = millis();
 
   mpu.getEvent(&accelSensor, &gyroSensor, &tempSensor);
-  String content = String(bmp1.readAltitude(seaPressure)) + ";" + String(tempSensor.temperature, 3) + ";" + ((bmp1.readTemperature()+bmp2.readTemperature())/2) + ";" + String(readPressure(), 4) + ";";
-  content += String(accelSensor.acceleration.x, 6) + ";" + String(accelSensor.acceleration.y, 6) + ";" + String(accelSensor.acceleration.z, 6) + ";";
+  String content = String(bmp1.readAltitude(seaPressure)) + ";" + String(tempSensor.temperature, 3) + ";" + String(bmp1.readTemperature(), 3) + ";" + String(bmp2.readTemperature(), 3) + ";" + String(bmp1.readPressure()/100, 4) + ";";
+  content += String(bmp2.readPressure()/100, 4) + ";" + String(accelSensor.acceleration.x, 6) + ";" + String(accelSensor.acceleration.y, 6) + ";" + String(accelSensor.acceleration.z, 6) + ";";
   content += String(gyroSensor.gyro.x, 6) + ";" + String(gyroSensor.gyro.y, 6) + ";" + String(gyroSensor.gyro.z, 6) + ";";
   content = getFormattedMillis(millis()) + ";" + content;
 
@@ -52,16 +53,12 @@ void getAndWriteSensorsEvents(String filePath, int maxOperationTime) {
   writeFile(filePath, content + "\n", true);
   logInfo("");
   
-  signed int loopTime = millis()-lastTime;
+  uint16_t loopTime = millis()-lastTime;
   logInfo("Operation took " + String(loopTime) + " ms to execute.");
   loopTime = maxOperationTime-loopTime;
   loopTime = loopTime < 0 ? 0 : loopTime;
   logInfo("The end of the loop will be in " + String(loopTime) + " ms");
   delay(loopTime);
-}
-
-float readPressure() {
-  return (bmp1.readPressure()+bmp2.readPressure())/2/100;
 }
 
 // function taken here: https://github.com/arduino-libraries/Arduino_DebugUtils/issues/5

@@ -1,7 +1,7 @@
 // Initialisation de la carte SD
 bool initSDCard(int csPin) {
   logInfo("", true);
-  logInfo("SD Card initialization ...");
+  logInfo("SD Card Module initialization ...");
 
   // Try to init card
   if (!SD.begin(csPin, SPI_HALF_SPEED)) {
@@ -113,9 +113,9 @@ bool initMPU(byte address, Adafruit_MPU6050 &mpu) {
   return true; // Initialization success
 }
 
-bool initBMP(byte address, Adafruit_BMP280 &bmp) {
+bool initBMP(byte address, Adafruit_BMP280 &bmp, String label) {
   logInfo("", true);
-  logInfo("BMP280 initialization ...");
+  logInfo("BMP280 (" + label + ") initialization ...");
 
   // Try to initialize
   if (!bmp.begin(address)) {
@@ -188,7 +188,7 @@ float calculateSeaPressure(float altitude, float defaultPressure) {
   } else {
     logInfo("Given value found! Using the value to calculate pressure at sea level ...");
     
-    float actualPressure = readPressure(),
+    float actualPressure = bmp1.readPressure(),
           seaPressure = bmp1.seaLevelForAltitude(altitude, actualPressure);
     logInfo("The pressure at sea level is " + String(seaPressure) + " hPa for a current pressure of " + String(actualPressure) + " hPa and an altitude of " + String(altitude) + " m");
     logInfo("This value wil be used and writen in the reference file ...");
