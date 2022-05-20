@@ -53,7 +53,7 @@ void getAndWriteSensorsEvents(String filePath, int maxOperationTime) {
   writeFile(filePath, content + "\n", true);
   logInfo("");
   
-  uint16_t loopTime = millis()-lastTime;
+  int16_t loopTime = millis()-lastTime;
   logInfo("Operation took " + String(loopTime) + " ms to execute.");
   loopTime = maxOperationTime-loopTime;
   loopTime = loopTime < 0 ? 0 : loopTime;

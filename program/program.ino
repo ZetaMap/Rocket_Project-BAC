@@ -34,16 +34,15 @@ Adafruit_BMP280 bmp2; // Création de l'objet pour le baromètre 2
 /* INITIALISATION */
 void setup() {
   Serial.begin(BAUD_RATE); // Initialisation du port série (pour le débugage)
+  Serial.setTimeout(1000);
   
   logInfo("########## Begin of main::setup() ##########");
   logInfo("Wait " + String(START_WAITING) + "s before starting ... You can type a new altitude to calculate pressure at sea level"); // Attend 10s avant de lancer le programme (le temps d'entrer la nouvelle altitude)
   float reads = 0;
   if (Serial) {
     for (int i=0; i<START_WAITING; i++) {
-      if (Serial.available()) {
-        reads = Serial.readString().toFloat();
-        break;
-      }
+      reads = Serial.parseFloat();
+      if (reads != 0) break;
     }
   } else delay(START_WAITING*1000);
   if (reads == 0) logError("No or invalid value was given! Skipping this step ...");
@@ -57,7 +56,7 @@ void setup() {
 
   logInfo("Devices Initialization ...");
 
-  if (!initSDCard(SS)) failedSignal(); // Initialisation de la carte CD sur le port SS (15)
+  if (!initSDCard(SS)) failedSignal(); // Initialisation de la carte CD sur le port SS (15)0
   if (!initMPU(MPU6050_DEVICE_ID, mpu)) failedSignal(); // Initialisation du gyroscope/acceléromètre
   // Initialisation des baromètres/altimètrse
   if (!initBMP(BMP280_ADDRESS_ALT, bmp1, "INTERNAL BAROMETER")) failedSignal();
