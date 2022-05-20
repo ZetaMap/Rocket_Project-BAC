@@ -30,7 +30,7 @@ String initFilesEnvironement(String rootDirectory) {
   // Test if partition is read-only
   logInfo("Write test on the device ...");
   if (!createFile("/", "write.test")) {
-    logError("Can't write on device! The partition is in read-only.");
+    logError("Can't write on device! The partition is in read-only or device not initialized.");
     return "";
   }
   deleteFile("/write.test");
@@ -188,7 +188,7 @@ float calculateSeaPressure(float altitude, float defaultPressure) {
   } else {
     logInfo("Given value found! Using the value to calculate pressure at sea level ...");
     
-    float actualPressure = bmp1.readPressure(),
+    float actualPressure = bmp1.readPressure()/100,
           seaPressure = bmp1.seaLevelForAltitude(altitude, actualPressure);
     logInfo("The pressure at sea level is " + String(seaPressure) + " hPa for a current pressure of " + String(actualPressure) + " hPa and an altitude of " + String(altitude) + " m");
     logInfo("This value wil be used and writen in the reference file ...");
